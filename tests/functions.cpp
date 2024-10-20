@@ -1,14 +1,16 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Write to file functions", "[functions]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Write to file functions", "[functions]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 
 int sayTen() {
@@ -31,7 +33,7 @@ namespace MyNamespace {
 }
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 expect(m.sayTen()).toBe(10);
 
 expect(m.giveBack("hello")).toBe("hello");
@@ -41,8 +43,8 @@ expect(m.MyNamespace.add(1, 2)).toBe(3);
 expect(m.MyNamespace.Nested.increase(2)).toBe(3);
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Functions");
+  stage.exportAsExample("Functions");
 }

@@ -1,4 +1,5 @@
 #include "TestStage/paths.hpp"
+
 #include <filesystem>
 
 namespace TestStage {
@@ -8,7 +9,7 @@ namespace TestStage {
 * NOTE: This is populated at configure time by cmake
 */
 std::filesystem::path getRootStagePath() {
-	return "@test_stage@";
+  return "@test_stage@";
 }
 
 /**
@@ -16,6 +17,6 @@ std::filesystem::path getRootStagePath() {
 * NOTE: This is populated at configure time by cmake
 */
 std::filesystem::path getExamplesPath() {
-	return "@examples_dir@";
+  return "@examples_dir@";
 }
-}
+}    // namespace TestStage

@@ -29,17 +29,17 @@ function(get_emscripten)
   endif()
 
   set(sdkCommand ./emsdk)
-  if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
+  if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
     set(sdkCommand emsdk.bat)
   endif()
 
   # Installs the Emscripten compiler
   execute_process(COMMAND ${sdkCommand} install ${emsdk_version}
-    WORKING_DIRECTORY ${emsdk_entry_SOURCE_DIR})
+                  WORKING_DIRECTORY ${emsdk_entry_SOURCE_DIR})
 
   # Writes the .emscripten file
   execute_process(COMMAND ${sdkCommand} activate ${emsdk_version}
-    WORKING_DIRECTORY ${emsdk_entry_SOURCE_DIR})
+                  WORKING_DIRECTORY ${emsdk_entry_SOURCE_DIR})
 
   # Export the variables
   set(emsdk_SOURCE_DIR
@@ -51,25 +51,22 @@ function(add_emscripten_library)
   # Define the supported set of keywords
   set(prefix ARG)
   set(noValues)
-  set(singleValues TARGET EMSDK_PATH)
+  set(singleValues TARGET EMSDK_PATH VERSION)
   set(multiValues SOURCES)
-  # Process the arguments passed in
-  # can be used e.g. via ARG_TARGET
+  # Process the arguments passed in can be used e.g. via ARG_TARGET
   cmake_parse_arguments(${prefix} "${noValues}" "${singleValues}"
                         "${multiValues}" ${ARGN})
 
-  # emsdk_path="$1"
-  # version="$2"
-  # out_dir="$3"
-  # sources="$4"
-  # module_name="$5"
+  # emsdk_path="$1" version="$2" out_dir="$3" sources="$4" module_name="$5"
 
   add_custom_target(
     ${ARG_TARGET}_wasm ALL
     BYPRODUCTS ${PROJECT_SOURCE_DIR}/build/tolc/${ARG_TARGET}.js
                ${PROJECT_SOURCE_DIR}/build/tolc/${ARG_TARGET}.wasm
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMAND ${PROJECT_SOURCE_DIR}/cmake/build_emscripten.sh ${emsdk_SOURCE_DIR}
-            3.1.3 ${PROJECT_SOURCE_DIR}/build/tolc ${ARG_TARGET} ${ARG_SOURCES}
+    COMMAND
+      ${PROJECT_SOURCE_DIR}/cmake/build_emscripten.sh ${emsdk_SOURCE_DIR}
+      ${ARG_VERSION} ${PROJECT_SOURCE_DIR}/build/tolc ${ARG_TARGET}
+      ${ARG_SOURCES}
     COMMENT "Running command: ${PROJECT_SOURCE_DIR}/cmake/build_emscripten.sh ")
 endfunction()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <IR/ir.hpp>
+
 #include <string>
 
 namespace TestUtil {

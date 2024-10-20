@@ -1,15 +1,17 @@
 #include "Frontend/Wasm/frontend.hpp"
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Taking functions as arguments", "[functional]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Taking functions as arguments", "[functional]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <functional>
 #include <vector>
 
@@ -32,7 +34,7 @@ int accumulateArrayOfFunctions(std::vector<std::function<int()>> arrayToSum) {
 }
 )";
 
-	auto pythonTestCode = fmt::format(R"(
+  auto pythonTestCode = fmt::format(R"(
 def callback(i):
   return i
 
@@ -48,9 +50,8 @@ def fiver():
 result1 = {moduleName}.accumulateArrayOfFunctions([fiver, fiver])
 self.assertEqual(result1, 10)
 )",
-	                                  fmt::arg("moduleName", moduleName));
+                                    fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runEmbindTest(cppCode, pythonTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, pythonTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 }
-

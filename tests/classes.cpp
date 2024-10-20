@@ -1,21 +1,23 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
 #include "TestUtil/files.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Classes", "[classes]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
-	// Add instantiation in a source file.
-	// This cannot be just declared, must be instantiated
-	// See https://en.cppreference.com/w/cpp/language/static
-	//
-	// Instantiation (must be in a source file):
-	stage.addModuleFile("test.cpp", "int const WithConstructor::i;");
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Classes", "[classes]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+  // Add instantiation in a source file.
+  // This cannot be just declared, must be instantiated
+  // See https://en.cppreference.com/w/cpp/language/static
+  //
+  // Instantiation (must be in a source file):
+  stage.addModuleFile("test.cpp", "int const WithConstructor::i;");
+
+  auto cppCode = R"(
 #include <string>
 #include <string_view>
 
@@ -72,7 +74,7 @@ struct WithEnum {
 
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 // Statics are available without instantiation
 // Static function
 expect(m.WithConstructor.getStatic()).toBe(55);
@@ -123,8 +125,8 @@ expect(withEnum.i).toBe(m.WithEnum.Instrument.Flute);
 withEnum.delete();
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Classes");
+  stage.exportAsExample("Classes");
 }

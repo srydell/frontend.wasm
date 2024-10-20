@@ -1,15 +1,17 @@
 #include "Frontend/Wasm/frontend.hpp"
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("User defined classes", "[userDefined]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("User defined classes", "[userDefined]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 
 class MyClass {
@@ -37,7 +39,7 @@ private:
 };
 )";
 
-	auto pythonTestCode = fmt::format(R"(
+  auto pythonTestCode = fmt::format(R"(
 phrase = "Hello from py"
 myClass = {moduleName}.buildMyClass(phrase);
 
@@ -46,8 +48,8 @@ self.assertEqual(myClass.getS(), phrase)
 owner = {moduleName}.Owner(myClass)
 self.assertEqual(owner.getMyClass().getS(), phrase)
 )",
-	                                  fmt::arg("moduleName", moduleName));
+                                    fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runEmbindTest(cppCode, pythonTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, pythonTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 }

@@ -1,14 +1,16 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Using std::arrays", "[arrays]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Using std::arrays", "[arrays]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <array>
 #include <string>
 
@@ -23,7 +25,7 @@ std::array<int, 2> getData2() {
 
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 const data3 = m.getData3();
 
 // It's just a normal JS array
@@ -37,8 +39,8 @@ expect(data2.length).toBe(2);
 expect(data2).toStrictEqual([0, 1]);
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::array");
+  stage.exportAsExample("std::array");
 }

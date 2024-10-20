@@ -1,15 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
 #include "TestUtil/files.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Virtual inheritence", "[virtualInheritence]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Virtual inheritence", "[virtualInheritence]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 
 class Animal {
@@ -38,7 +40,7 @@ std::string call_sound(Animal *animal) {
 }
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 const fido = new m.Dog();
 const grumpy = true;
 
@@ -88,8 +90,8 @@ expect(m.call_sound(tiger)).toBe("roar! roar! roar! ")
 tiger.delete();
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Overriding virtual in javascript");
+  stage.exportAsExample("Overriding virtual in javascript");
 }

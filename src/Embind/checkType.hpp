@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Embind/Proxy/typeInfo.hpp"
+
 #include <IR/ir.hpp>
+
 #include <queue>
 #include <set>
 #include <string>

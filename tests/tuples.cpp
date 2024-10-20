@@ -1,14 +1,16 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Using std::tuples", "[tuples]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Using std::tuples", "[tuples]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 #include <tuple>
 
@@ -33,7 +35,7 @@ public:
 
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 
 // Tuple converts from javascript array
 const myArray = ["Hello World", 42];
@@ -57,8 +59,8 @@ expect(withFunction.sum([1, 2, 3.3, 2.0])).toBeCloseTo(8.3, 5);
 withFunction.delete();
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::tuple");
+  stage.exportAsExample("std::tuple");
 }

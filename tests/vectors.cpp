@@ -1,14 +1,16 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Using std::vectors", "[vectors]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Using std::vectors", "[vectors]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <vector>
 
 std::vector<int> getData() {
@@ -17,7 +19,7 @@ std::vector<int> getData() {
 
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 const data = m.getData();
 
 expect(data.size()).toBe(3);
@@ -33,8 +35,8 @@ expect(data.size()).toBe(4);
 expect(data.get(3)).toBe(3);
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::vector");
+  stage.exportAsExample("std::vector");
 }

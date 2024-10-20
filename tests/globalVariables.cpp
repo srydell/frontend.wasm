@@ -1,15 +1,16 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Global variables are converted",
-          "[globalVariables]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Global variables are converted", "[globalVariables]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string_view>
 
 int const i = 0;
@@ -22,7 +23,7 @@ namespace MyNamespace {
 }
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 expect(m.i).toBe(0);
 expect(m.d).toBe(55);
 
@@ -36,8 +37,8 @@ expect(m.charPtr).toBe("Hello world");
 expect(m.MyNamespace.i).toBe(5);
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Global Variables");
+  stage.exportAsExample("Global Variables");
 }

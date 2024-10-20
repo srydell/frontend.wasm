@@ -1,14 +1,18 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Testing enums", "[enums]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Testing enums", "[enums]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  stage.keepAliveAfterTest();
+
+  auto cppCode = R"(
 enum Unscoped {
 	Under,
 	Uboat,
@@ -53,7 +57,7 @@ namespace MyNamespace {
 
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 // Can be passed as arguments
 const snail = m.Scoped.Snail;
 const enumTest = new m.EnumTest(snail);
@@ -76,8 +80,8 @@ const company = m.MyNamespace.Carrier.Translator.Tolc;
 expect(company).toBe(m.MyNamespace.Carrier.Translator.Tolc);
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Enums");
+  stage.exportAsExample("Enums");
 }

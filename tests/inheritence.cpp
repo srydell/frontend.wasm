@@ -1,15 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
 #include "TestUtil/files.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Inheritence", "[inheritence]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Inheritence", "[inheritence]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 
 struct Pet {
@@ -23,7 +25,7 @@ struct Dog : public Pet {
 };
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 const fido = new m.Dog("Fido");
 
 // Inherits public properties
@@ -33,8 +35,8 @@ expect(fido.name).toBe("Fido")
 expect(fido.bark()).toBe("woof!")
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Simple inheritence");
+  stage.exportAsExample("Simple inheritence");
 }

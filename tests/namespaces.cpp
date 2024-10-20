@@ -1,15 +1,17 @@
 #include "Frontend/Wasm/frontend.hpp"
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Namespaces turn into modules", "[namespaces]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Namespaces turn into modules", "[namespaces]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 
 namespace MyLib {
@@ -35,15 +37,15 @@ int complexFunction() {
 
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 expect(m.MyLib.complexFunction()).toBe(5);
 
 // Namespaces can be nested arbitrarily
 expect(m.MyLib.We.Are.Going.Pretty.Deep.meaningOfLife()).toBe('42');
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Namespaces");
+  stage.exportAsExample("Namespaces");
 }

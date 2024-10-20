@@ -2,40 +2,43 @@
 #include "Embind/Proxy/function.hpp"
 #include "Embind/Proxy/module.hpp"
 #include "TestUtil/string.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
+
+#include <string>
 
 TEST_CASE("ModuleFile includes embind and default start of bindings",
           "[moduleFile]") {
-	std::string moduleName = "myModule";
-	Embind::Proxy::Module m(moduleName, moduleName);
-	Embind::Proxy::ModuleFile mf(m, moduleName);
+  std::string moduleName = "myModule";
+  Embind::Proxy::Module m(moduleName, moduleName);
+  Embind::Proxy::ModuleFile mf(m, moduleName);
 
-	auto embindCode = mf.getEmbind();
-	CAPTURE(embindCode);
+  auto embindCode = mf.getEmbind();
+  CAPTURE(embindCode);
 
-	// The include
-	REQUIRE(TestUtil::contains(embindCode, "#include <emscripten/bind.h>"));
+  // The include
+  REQUIRE(TestUtil::contains(embindCode, "#include <emscripten/bind.h>"));
 
-	// The default start of export
-	REQUIRE(TestUtil::contains(
-	    embindCode, fmt::format("EMSCRIPTEN_BINDINGS({})", moduleName)));
+  // The default start of export
+  REQUIRE(TestUtil::contains(
+      embindCode, fmt::format("EMSCRIPTEN_BINDINGS({})", moduleName)));
 }
 
 TEST_CASE("ModuleFile includes the default preJS", "[moduleFile]") {
-	std::string moduleName = "myModule";
-	Embind::Proxy::Module m(moduleName, moduleName);
-	Embind::Proxy::ModuleFile mf(m, moduleName);
+  std::string moduleName = "myModule";
+  Embind::Proxy::Module m(moduleName, moduleName);
+  Embind::Proxy::ModuleFile mf(m, moduleName);
 
-	auto preJSCode = mf.getPreJS();
-	CAPTURE(preJSCode);
+  auto preJSCode = mf.getPreJS();
+  CAPTURE(preJSCode);
 
-	using TestUtil::contains;
-	// The Module declaration
-	REQUIRE(contains(preJSCode, "var Module = {"));
+  using TestUtil::contains;
+  // The Module declaration
+  REQUIRE(contains(preJSCode, "var Module = {"));
 
-	// The postRun start
-	REQUIRE(contains(preJSCode, "postRun: [() => {"));
+  // The postRun start
+  REQUIRE(contains(preJSCode, "postRun: [() => {"));
 }
 
 // TEST_CASE("ModuleFile can take a module", "[moduleFile]") {

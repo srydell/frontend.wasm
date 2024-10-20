@@ -1,15 +1,17 @@
 #include "Frontend/Wasm/frontend.hpp"
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("std::complex gets converted to complex", "[complex]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("std::complex gets converted to complex", "[complex]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <complex>
 
 using namespace std::complex_literals;
@@ -31,7 +33,7 @@ std::complex<double> r(std::complex<double> d) {
 }
 )";
 
-	auto pythonTestCode = fmt::format(R"(
+  auto pythonTestCode = fmt::format(R"(
 i = {moduleName}.i()
 self.assertEqual(i.real, 5)
 self.assertEqual(i.imag, 0)
@@ -49,8 +51,8 @@ r = {moduleName}.r(complex(1, 2))
 self.assertEqual(r.real, 1)
 self.assertEqual(r.imag, 2)
 )",
-	                                  fmt::arg("moduleName", moduleName));
+                                    fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runEmbindTest(cppCode, pythonTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, pythonTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 }

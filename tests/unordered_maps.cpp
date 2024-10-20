@@ -1,15 +1,17 @@
 #include "Frontend/Wasm/frontend.hpp"
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Using std::unordered_maps", "[unordered_maps]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Using std::unordered_maps", "[unordered_maps]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 #include <unordered_map>
 
@@ -33,7 +35,7 @@ private:
 
 )";
 
-	auto pythonTestCode = fmt::format(R"(
+  auto pythonTestCode = fmt::format(R"(
 myunordered_map = {{"hi": 4, "ho": 5}}
 c = {moduleName}.MyClass(myunordered_map)
 self.assertEqual(c.getS(), myunordered_map)
@@ -59,8 +61,8 @@ for incompatible_map in [{{"key": "value"}}, {{5: 2}}]:
     )
 
 )",
-	                                  fmt::arg("moduleName", moduleName));
+                                    fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runEmbindTest(cppCode, pythonTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, pythonTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 }

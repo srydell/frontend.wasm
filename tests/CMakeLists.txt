@@ -1,23 +1,21 @@
 include_guard()
 
-include(${modules}/GetParser.cmake)
-get_parser(VERSION v0.6.0)
+include(${CMAKE_SOURCE_DIR}/cmake/GetParser.cmake)
+get_parser_from_source(BRANCH feature/arm)
 
-# Set the include path for the system library in the variable
-# We are using the standard library shipped
-# with the downloaded llvm for include paths in the parsing
-get_parser_system_include(
-  VARIABLE
-  SYSTEM_INCLUDE_PATHS
-  PARSER_SOURCE_DIR
-  ${parser_SOURCE_DIR}
-  LIBCPP_ROOT_DIR
-  ${parser_SOURCE_DIR}/lib/Parser
-  LLVM_VERSION
-  ${PARSER_LLVM_VERSION})
+# Set the include path for the system library in the variable We are using the
+# standard library shipped with the downloaded llvm for include paths in the
+# parsing
+set(llvm_entry_version 19.1.0)
+FetchContent_MakeAvailable(llvm_entry)
+get_system_include(VARIABLE SYSTEM_INCLUDE_PATHS LLVM_DIRECTORY
+                   ${llvm_entry_SOURCE_DIR} LLVM_VERSION ${llvm_entry_version})
 
-# If Parser was built from source, the file should only be expanded with empty strings
-# and therefore use the default config from Parser.
+format_includes(VARIABLE SYSTEM_INCLUDE_PATHS INCLUDES ${SYSTEM_INCLUDE_PATHS}
+                SYSTEM)
+
+# If Parser was built from source, the file should only be expanded with empty
+# strings and therefore use the default config from Parser.
 configure_file(
   TestUtil/include/TestUtil/parserConfig.hpp.in
   ${CMAKE_CURRENT_LIST_DIR}/TestUtil/include/TestUtil/parserConfig.hpp @ONLY)
@@ -29,17 +27,15 @@ FetchContent_Declare(
   GIT_TAG main)
 FetchContent_MakeAvailable(stage_content)
 
-# Defines create_catch2_test and get_catch2
-include(${modules}/Catch2Helpers.cmake)
-
-get_catch2(VERSION v2.13.8)
+find_package(Catch2 REQUIRED)
 
 # Create a platform independent way of getting the path to the test stage
 set(test_stage ${CMAKE_CURRENT_LIST_DIR}/testStage)
 set(examples_dir ${PROJECT_SOURCE_DIR}/docs/examples)
 set(npm_exe npm)
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
-  # This is to normalize strings relative to how they are used in std::filesystem
+  # This is to normalize strings relative to how they are used in
+  # std::filesystem
   string(REPLACE "/" "\\\\" test_stage ${test_stage})
   string(REPLACE "/" "\\\\" examples_dir ${examples_dir})
   # On windows, the actual command that will be executed is npm.cmd
@@ -57,15 +53,15 @@ add_library(
   TestUtil/include/TestStage/paths.cpp)
 target_include_directories(TestUtil PUBLIC TestUtil/include)
 target_link_libraries(TestUtil PRIVATE Tolc::Frontend.wasm Tolc::Parser
-                                       Catch2::Catch2 Tolc::Stage)
-target_link_libraries(TestUtil PUBLIC IR::IR)
+                                       fmt::fmt Catch2::Catch2)
+target_link_libraries(TestUtil PUBLIC IR::IR Tolc::Stage)
 find_package(fmt REQUIRED)
 
 add_warnings(TARGET TestUtil)
 add_options(TARGET TestUtil)
 
 if(ENABLE_COVERAGE)
-  include(${modules}/CodeCoverage.cmake)
+  include(${CMAKE_SOURCE_DIR}/cmake/CodeCoverage.cmake)
 
   # Use coverage of frontend
   target_code_coverage(Frontend.wasm)
@@ -108,11 +104,9 @@ foreach(
   Embind/Proxy/moduleFile.cpp
   arrays.cpp
   classes.cpp
-  # complex.cpp
-  # deques.cpp
+  # complex.cpp deques.cpp
   enums.cpp
-  # filesystem_paths.cpp
-  # functional.cpp
+  # filesystem_paths.cpp functional.cpp
   functions.cpp
   globalVariables.cpp
   # lists.cpp
@@ -120,35 +114,30 @@ foreach(
   inheritence.cpp
   namespaceRenaming.cpp
   namespaces.cpp
-  # optionals.cpp
-  # overloadedFunctions.cpp
+  # optionals.cpp overloadedFunctions.cpp
   pairs.cpp
   # sets.cpp
   smartPointers.cpp
   # templates.cpp
   tuples.cpp
-  # unordered_maps.cpp
-  # unordered_sets.cpp
-  # userDefined.cpp
-  # valarrays.cpp
+  # unordered_maps.cpp unordered_sets.cpp userDefined.cpp valarrays.cpp
   # variants.cpp
   vectors.cpp
   virtualInheritence.cpp)
   # Ex: Embind/Proxy/moduleFile.cpp -> moduleFile
   get_filename_component(testName ${test} NAME_WLE)
 
-  create_catch2_test(
-    TARGET
-    ${testName}
-    SOURCES
-    ${test}
-    INCLUDE
-    ${PROJECT_SOURCE_DIR}/src
-    LINK_LIBRARIES
-    Frontend.wasm
-    TestUtil
-    Tolc::Stage
-    fmt::fmt)
+  get_filename_component(testName ${test} NAME_WLE)
+
+  add_executable(${testName} ${test})
+  target_link_libraries(${testName} PRIVATE Catch2::Catch2WithMain fmt::fmt
+                                            TestUtil Frontend.wasm)
+
+  target_include_directories(${testName} PRIVATE ${PROJECT_SOURCE_DIR}/src)
+  set_target_properties(${testName} PROPERTIES CXX_STANDARD_REQUIRED ON
+                                               CXX_EXTENSIONS OFF)
+
+  add_test(NAME ${testName} COMMAND ${testName})
 
   add_warnings(TARGET ${testName})
   add_options(TARGET ${testName})

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <IR/ir.hpp>
+
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace Frontend::Wasm {

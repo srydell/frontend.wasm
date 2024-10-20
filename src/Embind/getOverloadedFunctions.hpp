@@ -1,5 +1,7 @@
 #pragma once
+
 #include <IR/ir.hpp>
+
 #include <set>
 #include <string>
 #include <vector>

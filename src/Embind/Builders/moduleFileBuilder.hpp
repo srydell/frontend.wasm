@@ -1,8 +1,11 @@
 #pragma once
 
 #include "Embind/Proxy/moduleFile.hpp"
+
 #include <IR/ir.hpp>
+
 #include <optional>
+#include <string>
 
 namespace Embind::Builders {
 

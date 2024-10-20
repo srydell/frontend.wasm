@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Embind/Proxy/typeInfo.hpp"
+
 #include <string>
+#include <utility>
 
 namespace Embind {
 

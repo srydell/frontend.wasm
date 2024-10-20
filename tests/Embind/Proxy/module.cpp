@@ -1,53 +1,57 @@
 #include "Embind/Proxy/module.hpp"
 #include "TestUtil/string.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
+#include <string>
+#include <vector>
+
 TEST_CASE("Modules defines their functions", "[module]") {
-	std::string moduleName = "myModule";
-	Embind::Proxy::Module m(moduleName, moduleName);
+  std::string moduleName = "myModule";
+  Embind::Proxy::Module m(moduleName, moduleName);
 
-	std::vector<std::string> functions = {"f", "calculate", "foo"};
-	for (auto const& function : functions) {
-		m.addFunction(
-		    Embind::Proxy::Function(function, moduleName + "::" + function));
-	}
+  std::vector<std::string> functions = {"f", "calculate", "foo"};
+  for (auto const& function : functions) {
+    m.addFunction(
+        Embind::Proxy::Function(function, moduleName + "::" + function));
+  }
 
-	auto embindCode = m.getEmbind();
-	CAPTURE(embindCode);
+  auto embindCode = m.getEmbind();
+  CAPTURE(embindCode);
 
-	using TestUtil::contains;
-	for (auto const& function : functions) {
-		auto expectedContains = fmt::format(
-		    R"(function("myModule_{function}", &myModule::{function})",
-		    fmt::arg("function", function));
-		CAPTURE(function);
-		CAPTURE(expectedContains);
-		REQUIRE(contains(embindCode, expectedContains));
-	}
+  using TestUtil::contains;
+  for (auto const& function : functions) {
+    auto expectedContains =
+        fmt::format(R"(function("myModule_{function}", &myModule::{function})",
+                    fmt::arg("function", function));
+    CAPTURE(function);
+    CAPTURE(expectedContains);
+    REQUIRE(contains(embindCode, expectedContains));
+  }
 }
 
 TEST_CASE("PreJS includes function", "[module]") {
-	std::string moduleName = "myModule";
-	Embind::Proxy::Module m(moduleName, moduleName);
+  std::string moduleName = "myModule";
+  Embind::Proxy::Module m(moduleName, moduleName);
 
-	std::vector<std::string> functions = {"f", "calculate", "foo"};
-	for (auto const& function : functions) {
-		m.addFunction(
-		    Embind::Proxy::Function(function, moduleName + "::" + function));
-	}
+  std::vector<std::string> functions = {"f", "calculate", "foo"};
+  for (auto const& function : functions) {
+    m.addFunction(
+        Embind::Proxy::Function(function, moduleName + "::" + function));
+  }
 
-	auto preJS = m.getPreJS();
-	CAPTURE(preJS);
-	using TestUtil::contains;
-	for (auto const& function : functions) {
-		auto expectedContains =
-		    fmt::format(R"({function}: Module['myModule_{function}'],)",
-		                fmt::arg("function", function));
-		CAPTURE(function);
-		CAPTURE(expectedContains);
-		REQUIRE(contains(preJS, expectedContains));
-	}
+  auto preJS = m.getPreJS();
+  CAPTURE(preJS);
+  using TestUtil::contains;
+  for (auto const& function : functions) {
+    auto expectedContains =
+        fmt::format(R"({function}: Module['myModule_{function}'],)",
+                    fmt::arg("function", function));
+    CAPTURE(function);
+    CAPTURE(expectedContains);
+    REQUIRE(contains(preJS, expectedContains));
+  }
 }
 
 // TEST_CASE("Module variable name", "[module]") {

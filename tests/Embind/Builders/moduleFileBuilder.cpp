@@ -2,59 +2,62 @@
 #include "Embind/Proxy/module.hpp"
 #include "TestUtil/string.hpp"
 #include "TestUtil/types.hpp"
+
 #include <IR/ir.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
+#include <string>
+
 TEST_CASE("Contains the correct boilerplate", "[moduleFileBuilder]") {
-	IR::Namespace ns;
-	IR::Function f = TestUtil::getFunction("f");
-	f.m_returnType = TestUtil::getVector();
-	ns.m_functions.push_back(f);
+  IR::Namespace ns;
+  IR::Function f = TestUtil::getFunction("f");
+  f.m_returnType = TestUtil::getVector();
+  ns.m_functions.push_back(f);
 
-	std::string moduleName = "MyModule";
+  std::string moduleName = "MyModule";
 
-	auto file = Embind::Builders::buildModuleFile(ns, moduleName).value();
-	auto path = file.getCppFilepath();
-	auto embind = file.getEmbind();
-	CAPTURE(path);
-	CAPTURE(embind);
+  auto file = Embind::Builders::buildModuleFile(ns, moduleName).value();
+  auto path = file.getCppFilepath();
+  auto embind = file.getEmbind();
+  CAPTURE(path);
+  CAPTURE(embind);
 
-	REQUIRE(path == "MyModule_wasm.cpp");
+  REQUIRE(path == "MyModule_wasm.cpp");
 
-	for (auto const& expectedContains : {"#include <emscripten/bind.h>",
-	                                     "namespace em = emscripten;",
-	                                     "EMSCRIPTEN_BINDINGS(MyModule)"}) {
-		CAPTURE(expectedContains);
-		REQUIRE(TestUtil::contains(embind, expectedContains));
-	}
+  for (auto const& expectedContains : {"#include <emscripten/bind.h>",
+                                       "namespace em = emscripten;",
+                                       "EMSCRIPTEN_BINDINGS(MyModule)"}) {
+    CAPTURE(expectedContains);
+    REQUIRE(TestUtil::contains(embind, expectedContains));
+  }
 }
 
 TEST_CASE(
     "Two level namespace creates two different module declarations in the preJS",
     "[moduleFileBuilder]") {
-	IR::Namespace globalNS;
-	IR::Namespace ns;
-	std::string moduleName = "MyModule";
-	ns.m_name = moduleName;
-	ns.m_representation = moduleName;
+  IR::Namespace globalNS;
+  IR::Namespace ns;
+  std::string moduleName = "MyModule";
+  ns.m_name = moduleName;
+  ns.m_representation = moduleName;
 
-	IR::Namespace nested;
-	nested.m_name = "Nested";
-	nested.m_representation = "MyModule::Nested";
-	ns.m_namespaces.push_back(nested);
-	globalNS.m_namespaces.push_back(ns);
+  IR::Namespace nested;
+  nested.m_name = "Nested";
+  nested.m_representation = "MyModule::Nested";
+  ns.m_namespaces.push_back(nested);
+  globalNS.m_namespaces.push_back(ns);
 
-	auto file = Embind::Builders::buildModuleFile(globalNS, moduleName).value();
-	auto preJS = file.getPreJS();
-	CAPTURE(preJS);
+  auto file = Embind::Builders::buildModuleFile(globalNS, moduleName).value();
+  auto preJS = file.getPreJS();
+  CAPTURE(preJS);
 
-	// They seem to come in the wrong order
-	for (auto const& expectedContains :
-	     {"Module['MyModule'] = {", "Module['MyModule']['Nested'] = {"}) {
-		CAPTURE(expectedContains);
-		REQUIRE(TestUtil::contains(preJS, expectedContains));
-	}
+  // They seem to come in the wrong order
+  for (auto const& expectedContains :
+       {"Module['MyModule'] = {", "Module['MyModule']['Nested'] = {"}) {
+    CAPTURE(expectedContains);
+    REQUIRE(TestUtil::contains(preJS, expectedContains));
+  }
 }
 
 // TEST_CASE("Two level namespace", "[moduleFileBuilder]") {

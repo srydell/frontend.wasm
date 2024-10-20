@@ -2,7 +2,9 @@
 
 #include "Embind/Proxy/function.hpp"
 #include "Embind/Proxy/typeInfo.hpp"
+
 #include <IR/ir.hpp>
+
 #include <optional>
 
 namespace Embind::Builders {

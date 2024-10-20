@@ -1,15 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
+
+#include <string>
 
 TEST_CASE("Renaming module objects so they match the C++ more closely",
           "[namespaceRenaming]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
 
-	auto cppCode = R"(
+  auto cppCode = R"(
 #include <string>
 
 namespace MyNamespace {
@@ -47,7 +49,7 @@ struct WithEnum {
 
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 // Nested functions are under their respective namespace
 expect(m.MyNamespace.add(1, 2)).toBe(3);
 expect(m.MyNamespace.Nested.increase(2)).toBe(3);
@@ -94,6 +96,6 @@ withEnum.delete();
 expect(m.WithEnum_Instrument).toBe(undefined);
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 }

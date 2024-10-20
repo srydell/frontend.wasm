@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Embind/Proxy/enum.hpp"
+
 #include <IR/ir.hpp>
 
 namespace Embind::Builders {

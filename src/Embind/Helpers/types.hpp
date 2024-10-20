@@ -2,6 +2,8 @@
 
 #include <IR/ir.hpp>
 
+#include <string>
+
 namespace Embind::Helpers {
 
 /**

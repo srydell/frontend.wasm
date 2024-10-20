@@ -1,14 +1,16 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Using std::maps", "[maps]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Using std::maps", "[maps]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <map>
 #include <string>
 
@@ -20,7 +22,7 @@ std::map<int, std::string> getData() {
 
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 const data = m.getData();
 
 expect(data.size()).toBe(1);
@@ -33,8 +35,8 @@ expect(data.size()).toBe(2);
 expect(data.get(50)).toBe("Stuff");
 )";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::map");
+  stage.exportAsExample("std::map");
 }

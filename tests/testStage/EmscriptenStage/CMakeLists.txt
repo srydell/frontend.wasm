@@ -1,8 +1,7 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 
 # NOTE: Configuring this project the following flag must be present:
-#       -DCMAKE_TOOLCHAIN_FILE=${path_to_emscripten_toolchain}
-
+# -DCMAKE_TOOLCHAIN_FILE=${path_to_emscripten_toolchain}
 
 # Temporary workaround for clang 14
 # https://github.com/llvm/llvm-project/issues/53950
@@ -18,15 +17,12 @@ project(
   LANGUAGES ${frontend_languages})
 
 # Export compile flags to compile_commands.json database. Useful for linters and
-# autocompletion
-# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# autocompletion set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Get the variable 'target_name'
-# NOTE: This will be generated for each test
+# Get the variable 'target_name' NOTE: This will be generated for each test
 include(cmake/TargetName.cmake)
 
-# Get the variable 'sources'
-# NOTE: This will be generated for each test
+# Get the variable 'sources' NOTE: This will be generated for each test
 include(cmake/Sources.cmake)
 
 # Create the js module
@@ -41,9 +37,8 @@ set_target_properties(
              CXX_STANDARD 17)
 
 target_link_libraries(${target_name} PRIVATE embind)
-# Export Promise as 'loadm' for module 'm'
-# -s MODULARIZE=1 sets it as a promise based load
-# Note that this is necessary for preJS to work properly
+# Export Promise as 'loadm' for module 'm' -s MODULARIZE=1 sets it as a promise
+# based load Note that this is necessary for preJS to work properly
 set_property(
   TARGET ${target_name}
   PROPERTY

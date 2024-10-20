@@ -1,15 +1,17 @@
 #include "Frontend/Wasm/frontend.hpp"
 #include "TestStage/paths.hpp"
 #include "TestUtil/embindStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Specialized templates", "[templates]") {
-	std::string moduleName = "defaultModule";
-	auto stage =
-	    TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Specialized templates", "[templates]") {
+  std::string moduleName = "defaultModule";
+  auto stage = TestUtil::EmbindStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <map>
 #include <string>
 #include <vector>
@@ -35,7 +37,7 @@ template class MyClass<int>;
 template class MyClass<std::map<char, std::vector<int>>>;
 )";
 
-	auto jsTestCode = R"(
+  auto jsTestCode = R"(
 hi = m.getSomething("hi")
 expect(hi).toBe("hi");
 
@@ -51,6 +53,6 @@ expect(my_class_int.myFun(25)).toBe(25);
 my_class_map = m.MyClass_map_char_vector_int()
 expect(my_class_map.myFun({h: [1]}).toStrictEqual({h: [1]})))";
 
-	auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runEmbindTest(cppCode, jsTestCode, moduleName);
+  REQUIRE(errorCode == 0);
 }
